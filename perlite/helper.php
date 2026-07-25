@@ -196,7 +196,19 @@ function cmp($a, $b)
 {
 	$aTemp = str_replace('_', '0', $a);
 	$bTemp = str_replace('_', '0', $b);
-	return strnatcasecmp($aTemp, $bTemp);
+
+	// Notes are named YYYY-MM-DD-slug, so reversing the file comparison puts the
+	// most recently written note at the top of the sidebar. menu() walks folders
+	// and files in separate passes, so folders can stay in A-Z order.
+	$aDir = is_dir($a);
+	$bDir = is_dir($b);
+	if ($aDir !== $bDir) {
+		return $aDir ? -1 : 1;
+	}
+	if ($aDir) {
+		return strnatcasecmp($aTemp, $bTemp);
+	}
+	return strnatcasecmp($bTemp, $aTemp);
 }
 
 function menu($dir, $folder = '')
