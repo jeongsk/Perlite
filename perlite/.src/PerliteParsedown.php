@@ -1022,6 +1022,18 @@ class PerliteParsedown extends Parsedown
             $Element['attributes']['title'] = $Definition['title'];
         }
 
+        // A site-relative target is not an external link. Without this, every
+        // ![](/path/img.jpg) inherits the external-link class, which paints the
+        // outbound-arrow background and adds padding onto the <img> itself, and
+        // opens image links in a new tab. Protocol-relative //host/ URLs stay
+        // external.
+        $href = $Element['attributes']['href'];
+        if (is_string($href) && isset($href[0]) && $href[0] === '/' && substr($href, 0, 2) !== '//') {
+            $Element['attributes']['class'] = null;
+            $Element['attributes']['target'] = null;
+            $Element['attributes']['rel'] = null;
+        }
+
         return array(
             'extent' => $extent,
             'element' => $Element,
